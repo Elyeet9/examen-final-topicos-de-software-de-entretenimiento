@@ -27,7 +27,7 @@ class MenuScene extends Phaser.Scene {
         this.text.setOrigin(0.5, 0.5);
 
         this.input.once('pointerdown', () => {
-            this.scene.start('GameScene.js');
+            this.scene.start('GameScene');
         });
     }
 }
