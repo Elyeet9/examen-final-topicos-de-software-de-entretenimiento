@@ -8,12 +8,14 @@ class GameScene extends Phaser.Scene {
     init() {
         this.speed = 300.0;
         this.hp = 3;
+        this.score = 0;
     }
 
     create() {
         this.initUI();
         this.initPlayer();
         this.initEnemies();
+        this.initBullets();
     }
 
     initUI() {
@@ -35,6 +37,19 @@ class GameScene extends Phaser.Scene {
                 fontStyle: 'bold'
             }
         )
+
+        // Score Label
+        this.lblScore = this.add.text(
+            this.game.config.width - 10, 10,
+            `Score: ${this.score}`,
+            {
+                font: '24px Arial',
+                color: '#ffffff',
+                fontStyle: 'bold',
+                align: 'right'
+            }
+        )
+        this.lblScore.setOrigin(1, 0);
     }
 
     initPlayer() {
@@ -71,11 +86,40 @@ class GameScene extends Phaser.Scene {
         );
     }
 
+    initBullets() {
+        this.bullets = this.physics.add.group();
+
+        // test
+        this.time.addEvent({
+            delay: 1000, // TODO - CHANGE TO 4000
+            callback: this.spawnBullet,
+            callbackScope: this,
+            loop:true
+        });
+
+        this.physics.add.overlap(
+            this.bullets, this.enemies, 
+            this.bulletCollision, 
+            null, this
+        );
+    }
+
     handleCollision(player, enemy) {
         enemy.destroy();
         this.hp--;
         this.lblHp.setText(`HP: ${this.hp}`);
     }
+
+    bulletCollision(bullet, enemy) {
+        if(enemy.texture.key == 'enemy1') {
+            this.score += 10;
+        } else if(enemy.texture.key == 'enemy2') {
+            this.score += 5;
+        }
+        this.lblScore.setText(`Score: ${this.score}`);
+        bullet.destroy();
+        enemy.destroy();
+    } 
 
     update(time, delta) {
         // Player
@@ -91,7 +135,7 @@ class GameScene extends Phaser.Scene {
             this.player.setAngle(20);
         }
 
-        // Enemy
+        // Enemy and Bullet
         this.checkOutOfBounds();
     }
 
@@ -104,12 +148,25 @@ class GameScene extends Phaser.Scene {
         enemy.setScale(0.5);
     }
 
+    spawnBullet() {
+        let x = this.player.x;
+        let y = this.player.y - 20;
+        let bullet = this.bullets.create(x, y, 'bullet');
+        bullet.setVelocityY(-this.speed);
+        bullet.setScale(0.5);
+    }
+
     checkOutOfBounds() {
         this.enemies.children.each((enemy) => {
             if (enemy.y > this.game.config.height + 50) {
                 enemy.destroy();
             }
         });
+        this.bullets.children.each((bullet) => {
+            if(bullet.y < -50) {
+                bullet.destroy();
+            }
+        })
     }
 }
 export default GameScene;
