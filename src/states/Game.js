@@ -7,21 +7,34 @@ class GameScene extends Phaser.Scene {
 
     init() {
         this.speed = 300.0;
+        this.hp = 3;
     }
 
     create() {
-        this.initBackground();
+        this.initUI();
         this.initPlayer();
         this.initEnemies();
     }
 
-    initBackground() {
+    initUI() {
+        // Background
         this.bgGame = this.add.image(
             this.game.config.width / 2,
             this.game.config.height / 2,
             'bgGame'
         );
         this.bgGame.setOrigin(0.5, 0.5);
+
+        // Health Label
+        this.lblHp = this.add.text(
+            10, 10, 
+            `HP: ${this.hp}`,
+            {
+                font: '24px Arial',
+                color: '#ffffff',
+                fontStyle: 'bold'
+            }
+        )
     }
 
     initPlayer() {
