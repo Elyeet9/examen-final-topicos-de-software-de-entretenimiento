@@ -46,8 +46,12 @@ class GameScene extends Phaser.Scene {
         this.player.setOrigin(0.5, 0.5);
         this.player.setScale(0.3);
 
-        this.A = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
-        this.D = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
+        this.A = this.input.keyboard.addKey(
+            Phaser.Input.Keyboard.KeyCodes.A
+        );
+        this.D = this.input.keyboard.addKey(
+            Phaser.Input.Keyboard.KeyCodes.D
+        );
     }
 
     initEnemies() {
@@ -60,10 +64,21 @@ class GameScene extends Phaser.Scene {
             loop:true
         });
         
-        // Add physics
+        this.physics.add.overlap(
+            this.player, this.enemies, 
+            this.handleCollision, 
+            null, this
+        );
+    }
+
+    handleCollision(player, enemy) {
+        enemy.destroy();
+        this.hp--;
+        this.lblHp.setText(`HP: ${this.hp}`);
     }
 
     update(time, delta) {
+        // Player
         this.player.setVelocity(0);
         this.player.setAngle(0);
         
@@ -75,6 +90,9 @@ class GameScene extends Phaser.Scene {
             this.player.body.setVelocityX(this.speed);
             this.player.setAngle(20);
         }
+
+        // Enemy
+        this.checkOutOfBounds();
     }
 
     spawnEnemy() {
@@ -84,6 +102,14 @@ class GameScene extends Phaser.Scene {
         let enemy = this.enemies.create(x, -50, texture);
         enemy.setVelocityY(this.speed / 2);
         enemy.setScale(0.5);
+    }
+
+    checkOutOfBounds() {
+        this.enemies.children.each((enemy) => {
+            if (enemy.y > this.game.config.height + 50) {
+                enemy.destroy();
+            }
+        });
     }
 }
 export default GameScene;
