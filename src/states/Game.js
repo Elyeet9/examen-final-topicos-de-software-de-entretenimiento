@@ -108,6 +108,10 @@ class GameScene extends Phaser.Scene {
         enemy.destroy();
         this.hp--;
         this.lblHp.setText(`HP: ${this.hp}`);
+
+        if(this.hp <= 0) {
+            this.gameOver();
+        }
     }
 
     bulletCollision(bullet, enemy) {
@@ -167,6 +171,16 @@ class GameScene extends Phaser.Scene {
                 bullet.destroy();
             }
         })
+    }
+
+    gameOver() {
+        this.enemies.clear(true, true);
+        this.bullets.clear(true, true);
+
+        this.scene.start(
+            'GameOverScene', 
+            { score: this.score }
+        );
     }
 }
 export default GameScene;
