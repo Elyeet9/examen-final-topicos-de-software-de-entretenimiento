@@ -12,6 +12,7 @@ class GameScene extends Phaser.Scene {
     create() {
         this.initBackground();
         this.initPlayer();
+        this.initEnemies();
     }
 
     initBackground() {
@@ -21,8 +22,6 @@ class GameScene extends Phaser.Scene {
             'bgGame'
         );
         this.bgGame.setOrigin(0.5, 0.5);
-        this.bgGame.displayWidth = 800;
-        this.bgGame.displayHeight = 600;
     }
 
     initPlayer() {
@@ -38,6 +37,19 @@ class GameScene extends Phaser.Scene {
         this.D = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
     }
 
+    initEnemies() {
+        this.enemies = this.physics.add.group();
+
+        this.time.addEvent({
+            delay: 1000, // TODO - CHANGE TO 4000
+            callback: this.spawnEnemy,
+            callbackScope: this,
+            loop:true
+        });
+        
+        // Add physics
+    }
+
     update(time, delta) {
         this.player.setVelocity(0);
         this.player.setAngle(0);
@@ -50,6 +62,15 @@ class GameScene extends Phaser.Scene {
             this.player.body.setVelocityX(this.speed);
             this.player.setAngle(20);
         }
+    }
+
+    spawnEnemy() {
+        let x = Phaser.Math.Between(50, this.game.config.width - 50);
+        const textures = ['enemy1', 'enemy2'];
+        let texture = Phaser.Utils.Array.GetRandom(textures);
+        let enemy = this.enemies.create(x, -50, texture);
+        enemy.setVelocityY(this.speed / 2);
+        enemy.setScale(0.5);
     }
 }
 export default GameScene;
