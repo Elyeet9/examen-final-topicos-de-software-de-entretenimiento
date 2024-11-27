@@ -9,6 +9,8 @@ class GameScene extends Phaser.Scene {
         this.speed = 300.0;
         this.hp = 3;
         this.score = 0;
+        this.canShoot = true;
+        this.timerShoot = 0.0;
     }
 
     create() {
@@ -67,13 +69,17 @@ class GameScene extends Phaser.Scene {
         this.D = this.input.keyboard.addKey(
             Phaser.Input.Keyboard.KeyCodes.D
         );
+
+        this.SPACE = this.input.keyboard.addKey(
+            Phaser.Input.Keyboard.KeyCodes.SPACE
+        )
     }
 
     initEnemies() {
         this.enemies = this.physics.add.group();
 
         this.time.addEvent({
-            delay: 1000, // TODO - CHANGE TO 4000
+            delay: 4000,
             callback: this.spawnEnemy,
             callbackScope: this,
             loop:true
@@ -88,14 +94,6 @@ class GameScene extends Phaser.Scene {
 
     initBullets() {
         this.bullets = this.physics.add.group();
-
-        // test
-        this.time.addEvent({
-            delay: 1000, // TODO - CHANGE TO 4000
-            callback: this.spawnBullet,
-            callbackScope: this,
-            loop:true
-        });
 
         this.physics.add.overlap(
             this.bullets, this.enemies, 
@@ -126,6 +124,13 @@ class GameScene extends Phaser.Scene {
     } 
 
     update(time, delta) {
+        // Shooter timer
+        if(!this.canShoot && this.timerShoot > 0) {
+            this.timerShoot -= delta;
+        } else if (!this.canShoot && this.timerShoot <= 0) {
+            this.canShoot = true;
+        }
+
         // Player
         this.player.setVelocity(0);
         this.player.setAngle(0);
@@ -137,6 +142,11 @@ class GameScene extends Phaser.Scene {
         if(this.D.isDown) {
             this.player.body.setVelocityX(this.speed);
             this.player.setAngle(20);
+        }
+        if(this.canShoot && this.SPACE.isDown) {
+            this.spawnBullet();
+            this.canShoot = false;
+            this.timerShoot = 1000;
         }
 
         // Enemy and Bullet
